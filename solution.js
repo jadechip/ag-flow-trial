@@ -56,9 +56,24 @@ function generateFamilyTree(generations) {
 		// for the amount of the tally, let's say it's 1, take the last element of the lineage array...
 		// which results in 3 generations, so the tally is now 3, take the last 2, is now 5
 
-		var offspring = lineage[lineage.length - 1]['offspring'];
+		var targetGenerations = null;
+
+		if(tally == 1) {
+			offspring = lineage[lineage.length -1]['offspring']			
+		} else {
+			targetGenerations = lineage.slice((tally - 1));
+			for(var i = 0; i < numberOfCases; i++){
+				offspring.push(targetGenerations[i]);
+			}
+		}
 
 		// offspring: { first: 'male', second: 'female' }
+
+		// var i = 0;
+		// do {
+		//    i += 1;
+		//    console.log(i);
+		// } while (i < 5);		
 
 		for(var child in offspring) {
 
