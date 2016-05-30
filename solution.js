@@ -26,16 +26,16 @@ function ask(question, format, callback) {
 }
 
 function currentLineage(lineage, tally) {
-	console.log('this is the current lineage ->', lineage);
+	console.log('this is the current lineage -> \n', lineage);
 	console.log('this is the current tally ->', tally);	
 }
 
 function insertGeneration(scope) {
 	if(scope.generation == 'male') {
-		scope.lineage.push({ancestor: 'male', offspring: {first: 'male', second: 'female'}});
+		scope.lineage.push({ancestor: 'male', offspring: ['male', 'female']});
 		scope.tally++;
 	} else {
-		scope.lineage.push({ancestor: 'female', offspring: {first: 'female', second: 'male'}});
+		scope.lineage.push({ancestor: 'female', offspring: ['female', 'male']});
 		scope.tally++;
 	}
 	return scope.lineage;
@@ -46,49 +46,77 @@ function generateFamilyTree(generations) {
 
 	this.generation = 'male';
 	this.tally = 0;
+	this.generationTally = null;
 	this.lineage = [];
 
+	if(generations == 1) {
+		return this.generation;
+	}
+
+	////////////////////////
+
+	var offspring = [];
+
 	insertGeneration(this);
-	currentLineage(lineage, tally);
+	currentLineage(lineage, tally); 
+	// at this point, we actually have 2 generations, the ancestor and the offspring
+	offspring = lineage[lineage.length - 1]['offspring'];
 
-	if(generations > tally) { 
+	for(var child in offspring) {
 
-		// for the amount of the tally, let's say it's 1, take the last element of the lineage array...
-		// which results in 3 generations, so the tally is now 3, take the last 2, is now 5
+	  if(offspring.hasOwnProperty(child)) {
+	  	this.generation = offspring[child];
+	  	console.log(offspring[child]);
+	    insertGeneration(this);
+		currentLineage(lineage, tally);
+	  } else {
+	  	return lineage;
+	  }
+	}
 
-		var targetGenerations = null;
+	generationTally = 2;
 
-		if(tally == 1) {
-			offspring = lineage[lineage.length -1]['offspring']			
-		} else {
-			targetGenerations = lineage.slice((tally - 1));
-			for(var i = 0; i < numberOfCases; i++){
-				offspring.push(targetGenerations[i]);
+	// tally is now 3, called for the ancestor and each offspring
+
+	////////////////////////
+
+	while(generations > generationTally) {
+
+		var sliceAmount = ((tally - 1) * -1);
+
+		offspring = [];
+
+		targetGenerations = lineage.slice(sliceAmount);
+		console.log('-------->', targetGenerations);
+		console.log('-------->');
+		for(var i = 0; i < targetGenerations.length; i++){
+			for(var j = 0; j < targetGenerations[i]['offspring'].length; j++){
+				offspring.push(targetGenerations[i]['offspring'][j]);
 			}
 		}
 
-		// offspring: { first: 'male', second: 'female' }
 
-		// var i = 0;
-		// do {
-		//    i += 1;
-		//    console.log(i);
-		// } while (i < 5);		
-
+		// take the last 2 elements
 		for(var child in offspring) {
-
 		  if(offspring.hasOwnProperty(child)) {
 		  	this.generation = offspring[child];
-		  	console.log(offspring[child]);
 		    insertGeneration(this);
 			currentLineage(lineage, tally);
 		  } else {
-		  	return lineage;
+		  	console.log('child not in array');
+		  	return;
 		  }
 		}
-	} else {
-		return lineage;
+
+		generationTally++;
+
 	}
+
+	// tally should now be 7
+
+	console.log('generation tally', generationTally);
+	console.log('total tally', tally);
+	return lineage;
 
 }
 
